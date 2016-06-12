@@ -56,10 +56,11 @@ int32_t render_subtitle(GRAPHICS_RESOURCE_HANDLE img, int justify, const char *t
    if (s != 0) return s;
    
    if (width) {
-	   
-	  if (justify == 0) left = left_offset;
-	  if (justify == 1) left = (img_w - width);
-      s = graphics_resource_render_text_ext(img, left, y_offset * img_h / 100,
+    
+     if (justify == 0) left = left_offset + 60;
+     if (justify == 1) left = (img_w - width - 60);
+    
+     s = graphics_resource_render_text_ext(img, left, y_offset * img_h / 100,
                                      GRAPHICS_RESOURCE_WIDTH,
                                      GRAPHICS_RESOURCE_HEIGHT,
                                      GRAPHICS_RGBA32(cb,cg,cr,0xff), /* fg BGRA */
