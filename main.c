@@ -117,10 +117,10 @@ uint32_t renderStat(GRAPHICS_RESOURCE_HANDLE img, char* filename, uint32_t yoff_
    int i = 0;
    char line[100];
    memset(line,0,100);
-   int red = 128;
-   int green = 128;
-   int blue = 128;
-   int size = 8;
+   int red = 0;
+   int green = 0;
+   int blue = 0;
+   int size = 5;
    char txt1[100];
    char txt2[100];
    
@@ -132,6 +132,7 @@ uint32_t renderStat(GRAPHICS_RESOURCE_HANDLE img, char* filename, uint32_t yoff_
      while ( fgets (line , 100 , pFile) != NULL ) 
 	 {	 
        i = 0;
+       red = green = blue = 0;
        tok = strtok(line, "#");
        while( tok != NULL ) {
 //         if( i==0 ) strcpy(txt1,tok);
