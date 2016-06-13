@@ -60,7 +60,7 @@ int32_t render_subtitle(GRAPHICS_RESOURCE_HANDLE img, int justify, const char *t
      if (justify == 0) left = left_offset + 60;
      if (justify == 1) left = (img_w - width - 60);
     
-     s = graphics_resource_render_text_ext(img, left, y_offset * img_h / 100 + 30,
+     s = graphics_resource_render_text_ext(img, left, y_offset * img_h / 100,
                                      GRAPHICS_RESOURCE_WIDTH,
                                      GRAPHICS_RESOURCE_HEIGHT,
                                      GRAPHICS_RGBA32(cb,cg,cr,0xff), /* fg BGRA */
@@ -216,8 +216,8 @@ int main(int argc, char *argv[])
       sprintf(info,"%u / %u",LAYER,loops);
 
       // draw the subtitle text
-      render_subtitle(img, 1, text1, tSize[0], 5, red[0], green[0], blue[0], 0 );
-      render_subtitle(img, 1, text2, tSize[1], 5 + tSize[0] * 1.2, red[1], green[1], blue[1] ,0  );
+      render_subtitle(img, 1, text1, tSize[0], 12, red[0], green[0], blue[0], 0 );
+      render_subtitle(img, 1, text2, tSize[1], 12 + tSize[0] * 1.2, red[1], green[1], blue[1] ,0  );
       render_subtitle(img, 1, text3, tSize[2], 100 - tSize[2] * 1.7, red[2], green[2], blue[2] ,0 );
 //      render_subtitle(img, 1, info,  7, height/2-15+(LAYER-1)*40, 128, 128, 128, 0 );
 
