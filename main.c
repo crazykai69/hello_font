@@ -45,6 +45,8 @@ int32_t render_subtitle(GRAPHICS_RESOURCE_HANDLE img, int justify, const char *t
    uint32_t img_w, img_h, left;
    uint32_t text_size = text_size_in;
    
+   img_w = img_h = left = 0;
+
    graphics_get_resource_size(img, &img_w, &img_h);
    
    text_size = img_h * text_size_in / 100;
@@ -145,9 +147,9 @@ uint32_t renderStat(GRAPHICS_RESOURCE_HANDLE img, char* filename, uint32_t yoff_
          i++;
          tok = strtok( NULL, "#" );
        }
-	   puts( txt1 );
-	         sprintf(txt2,"%u",yoff);
-			 puts( txt2 );
+	// puts( txt1 );
+	// sprintf(txt2,"%u",yoff);
+	// puts( txt2 );
 
 //	   render_subtitle(img, 0, txt1, size, yoff, red, green, blue, 0 );
 	   render_subtitle(img, 0, txt1, size, yoff, red, green, blue, 0 );
@@ -163,7 +165,7 @@ int main(int argc, char *argv[])
 {
    GRAPHICS_RESOURCE_HANDLE img;
    uint32_t width, height;
-   int LAYER=1;
+   int LAYER=2;
    bcm_host_init();
    int s;
    int carg = 0;
@@ -213,7 +215,7 @@ int main(int argc, char *argv[])
 
       graphics_resource_fill(img, 0, 0, width, height, GRAPHICS_RGBA32(0,0,0,0x00));
 
-      sprintf(info,"%u / %u",LAYER,loops);
+      //sprintf(info,"%u / %u",LAYER,loops);
 
       // draw the subtitle text
       render_subtitle(img, 1, text1, tSize[0], 12, red[0], green[0], blue[0], 0 );
