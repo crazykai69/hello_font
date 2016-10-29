@@ -32,14 +32,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h> //inet_addr
 
 #include "bcm_host.h"
 #include "vgfont.h"
-#include <time.h>
 
-int32_t render_subtitle(GRAPHICS_RESOURCE_HANDLE img, int justify, const char *text, const uint32_t text_size_in, const uint32_t y_offset, uint cr, uint cg, uint cb, uint32_t left_offset, int bgAlpha )
+int32_t render_subtitle(GRAPHICS_RESOURCE_HANDLE img, int justify, const char *text, const uint32_t text_size_in, const uint32_t y_offset, uint cr, uint cg, uint cb, uint32_t left_offset)
 {
    uint32_t text_length = strlen(text);
    uint32_t width=0, height=0;
@@ -69,7 +66,7 @@ int32_t render_subtitle(GRAPHICS_RESOURCE_HANDLE img, int justify, const char *t
                                      GRAPHICS_RESOURCE_WIDTH,
                                      GRAPHICS_RESOURCE_HEIGHT,
                                      GRAPHICS_RGBA32(cb,cg,cr,0xff), /* fg BGRA */
-                                     GRAPHICS_RGBA32(0,0,0,bgAlpha), /* bg */
+                                     GRAPHICS_RGBA32(0,0,0,0x00), /* bg */
                                      split, text_length, text_size);
       if (s!=0) return s;
    }
@@ -141,6 +138,7 @@ uint32_t renderStat(GRAPHICS_RESOURCE_HANDLE img, char* filename, uint32_t yoff_
        red = green = blue = 0;
        tok = strtok(line, "#");
        while( tok != NULL ) {
+//         if( i==0 ) strcpy(txt1,tok);
          if( i==2 ) strcpy(txt1,tok);
          if( i==3 ) red = atoi(tok);
          if( i==4 ) green = atoi(tok);
@@ -149,76 +147,18 @@ uint32_t renderStat(GRAPHICS_RESOURCE_HANDLE img, char* filename, uint32_t yoff_
          i++;
          tok = strtok( NULL, "#" );
        }
+	// puts( txt1 );
+	// sprintf(txt2,"%u",yoff);
+	// puts( txt2 );
 
-	   render_subtitle(img, 0, txt1, size, yoff, red, green, blue, 0, 0 );
+//	   render_subtitle(img, 0, txt1, size, yoff, red, green, blue, 0 );
+	   render_subtitle(img, 0, txt1, size, yoff, red, green, blue, 0 );
 	   yoff = yoff + size * 1.2;
 	   
 	   }
      fclose (pFile);
    }
    return yoff;
-}
-
-int getTemp(char* tempVal)
-{
-    int socket_desc;
-    struct sockaddr_in server;
-    char *message , server_reply[4000];
-    char * realContent;
-     
-     memset(server_reply, 0, 4000);
-
-    //Create socket
-    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
-    if (socket_desc == -1)
-    {
-        printf("Could not create socket");
-    }
-         
-    server.sin_addr.s_addr = inet_addr("217.160.231.123");
-    server.sin_family = AF_INET;
-    server.sin_port = htons( 80 );
- 
-    //Connect to remote server
-    if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
-    {
-        puts("connect error");
-        return 1;
-    }
-     
-    //puts("Connected\n");
-     
-    //Send some data
-    message = "GET /dashboard/ajaxdata.php?format=3&tempOnly=1 HTTP/1.1\r\nHost: www.kai-merklein.de\r\n\r\n";
-//    message = "GET /dashboard/test.php HTTP/1.1\r\nHost: www.kai-merklein.de\r\n\r\n";
-    //puts(message);
-    if( send(socket_desc , message , strlen(message) , 0) < 0)
-    {
-        puts("Send failed");
-        return 1;
-    }
-    //puts("Data Send\n");
-     
-    //Receive a reply from the server
-    if( recv(socket_desc, server_reply , 4000 , 0) < 0)
-    {
-        puts("recv failed");
-    }
-    //puts("Reply received\n");
-   //puts(server_reply);
-    
-    realContent = strstr(server_reply, "\r\n\r\n")+4;
- 
-    //puts("Response:");
-    //puts(tempVal);
-
-    strcpy(tempVal, realContent);
-
-//  printf("%s",realContent);
-
-    close( socket_desc );
-
-    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -263,19 +203,7 @@ int main(int argc, char *argv[])
    uint green[3];
    uint blue[3];
    uint32_t stat_off = 0;
-   char timeOld[25];
-   char tempVal[25];
-   memset(tempVal,0,25);
-
-	time_t timer;
-	char textTime[25];
-	char timeAndTemp[30];
-	char temperature[20];
-	struct tm* tm_info;
-	memset(temperature,0,20);
-	
-	int iniLoops = loops;
- 
+   
    while ( loops > 0 ) {
 
 	  char text1[50];
@@ -287,26 +215,19 @@ int main(int argc, char *argv[])
 
       graphics_resource_fill(img, 0, 0, width, height, GRAPHICS_RGBA32(0,0,0,0x00));
 
-      time(&timer);
-      tm_info = localtime(&timer);
+      //sprintf(info,"%u / %u",LAYER,loops);
 
-      strftime(textTime, 10, "%H:%M", tm_info);
-	  
-	  sprintf( timeAndTemp, "%s - %s Grad", textTime, temperature );
-  
       // draw the subtitle text
-	  // ..._subtitle( img, 1=right/0=left, Text, TextSize in %, Y-Offset in %, R, G, B, Alpha )
-      render_subtitle(img, 1, text1, tSize[0], 12, red[0], green[0], blue[0], 0, 0 );
-      render_subtitle(img, 1, text2, tSize[1], 12 + tSize[0] * 1.2, red[1], green[1], blue[1] ,0, 0 );
-      render_subtitle(img, 1, text3, tSize[2], 100 - tSize[2] * 1.7, red[2], green[2], blue[2] ,0, 0 );
-      render_subtitle(img, 0, timeAndTemp, 7, 86, 210, 210, 210, 0, 0 );
+      render_subtitle(img, 1, text1, tSize[0], 12, red[0], green[0], blue[0], 0 );
+      render_subtitle(img, 1, text2, tSize[1], 12 + tSize[0] * 1.2, red[1], green[1], blue[1] ,0  );
+      render_subtitle(img, 1, text3, tSize[2], 100 - tSize[2] * 1.7, red[2], green[2], blue[2] ,0 );
+//      render_subtitle(img, 1, info,  7, height/2-15+(LAYER-1)*40, 128, 128, 128, 0 );
 
 	  stat_off = renderStat( img, "/var/tmp/stat.txt", 12);
+//	  stat_off = renderStat( img, "/var/tmp/stat.txt", stat_off);
 	  
       graphics_update_displayed_resource(img, 0, 0, 0, 0);
 
-	  if( loops == iniLoops ) getTemp(temperature);
-	  
       sleep(1);
       loops--;
    }
